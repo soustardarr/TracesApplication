@@ -2,7 +2,7 @@
 //  SceneDelegate.swift
 //  Traces
 //
-//  Created by Ruslan Kozlov on 29.02.2024.
+//  Created by Ruslan Kozlov on 04.03.2024.
 //
 
 import UIKit
@@ -17,6 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController = MainViewController()
         window?.makeKeyAndVisible()
+
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

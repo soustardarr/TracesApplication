@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Traces
 //
-//  Created by Ruslan Kozlov on 29.02.2024.
+//  Created by Ruslan Kozlov on 04.03.2024.
 //
 
 import UIKit
@@ -11,10 +11,7 @@ import CoreData
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
         return true
     }
 
