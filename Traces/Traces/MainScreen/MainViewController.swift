@@ -15,12 +15,14 @@ class MainViewController: UIViewController {
         let mapView = MKMapView()
         mapView.showsUserLocation = true
         mapView.translatesAutoresizingMaskIntoConstraints = false
+        mapView.mapType = .hybridFlyover
         mapView.setUserTrackingMode(.followWithHeading, animated: true)
         return mapView
     }()
     var buttonProfile: UIButton = {
         let buttonProfile = UIButton()
         buttonProfile.setImage(.profileIcon, for: .normal)
+        buttonProfile.addTarget(nil, action: #selector(switchingToProfile), for: .touchUpInside)
         buttonProfile.translatesAutoresizingMaskIntoConstraints = false
         return buttonProfile
     }()
@@ -62,6 +64,10 @@ class MainViewController: UIViewController {
 
     private var viewModel: MainViewModel?
 
+    @objc func switchingToProfile() {
+        self.present(ProfileViewController(), animated: true)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel = MainViewModel()
@@ -69,6 +75,21 @@ class MainViewController: UIViewController {
         mapView.delegate = self
         setUpLayout()
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        let isLoggedIn = UserDefaults.standard.bool(forKey: "logged_in")
+
+        if !isLoggedIn {
+            let vc = AuthorizationViewController()
+            let nav = UINavigationController(rootViewController: vc)
+            nav.modalPresentationStyle = .fullScreen
+            self.present(nav, animated: false)
+        }
+
+
+    }
+
 
     func setUpLayout() {
         view.addSubview(mapView)
@@ -118,10 +139,8 @@ extension MainViewController: MainViewModelDelegate, MKMapViewDelegate {
         guard annotation is MKUserLocation else {
             return nil
         }
-
         let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "UserLocation")
         annotationView.image = .iconLocation
-
         return annotationView
     }
 }
