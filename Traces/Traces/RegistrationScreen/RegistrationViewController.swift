@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class RegistrationViewController: UIViewController, UINavigationControllerDelegate {
 
@@ -114,7 +115,14 @@ class RegistrationViewController: UIViewController, UINavigationControllerDelega
             return
         }
 
-        //firebase login
+        FirebaseAuth.Auth.auth().createUser(withEmail: login, password: password) { dataResult, error in
+            guard let result = dataResult, error == nil else { return }
+
+            let user = result.user
+            print(user)
+
+
+        }
     }
 
     private func alertUserLoginError() {

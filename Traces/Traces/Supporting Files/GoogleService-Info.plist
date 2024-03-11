@@ -3,28 +3,28 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDLbKsXjTWgThvoWHW-KrYIMpdadR33OkQ</string>
+	<string>AIzaSyB4TJ7VvhKMNdoyIh3UeJEQFGNq7qBwfX0</string>
 	<key>GCM_SENDER_ID</key>
-	<string>771234348657</string>
+	<string>48595971756</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>-</string>
+	<string>-.Traces</string>
 	<key>PROJECT_ID</key>
-	<string>traces-7561b</string>
+	<string>traces-37ca1</string>
 	<key>STORAGE_BUCKET</key>
-	<string>traces-7561b.appspot.com</string>
+	<string>traces-37ca1.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<false/>
+	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false/>
+	<false></false>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>IS_GCM_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:771234348657:ios:1c9df85f677efb1c03a5d0</string>
+	<string>1:48595971756:ios:551662c0b0e4e052a0f909</string>
 </dict>
 </plist>
