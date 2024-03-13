@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class ProfileViewController: UIViewController {
 
@@ -81,6 +82,7 @@ class ProfileViewController: UIViewController {
         exitButton.titleLabel?.font = UIFont.systemFont(ofSize: 25)
         exitButton.tintColor = .white
         exitButton.translatesAutoresizingMaskIntoConstraints = false
+        exitButton.addTarget(nil, action: #selector(didExitButtonTapped), for: .touchUpInside)
         return exitButton
     }()
 
@@ -96,10 +98,29 @@ class ProfileViewController: UIViewController {
         return invitationButton
     }()
 
+    @objc func didExitButtonTapped() {
+        let controller = UIAlertController(title: "выход из аккаунта", message: "хотите выйти?", preferredStyle: .alert)
+        controller.addAction(UIAlertAction(title: "да", style: .destructive, handler: { [ weak self ] _ in
+            guard let strongSelf = self else { return }
+            do {
+                try FirebaseAuth.Auth.auth().signOut()
+                let vc = AuthorizationViewController()
+                let nav = UINavigationController(rootViewController: vc)
+                nav.modalPresentationStyle = .fullScreen
+                strongSelf.present(nav, animated: false)
+            } catch let error {
+                print(error)
+            }
+        }))
+        controller.addAction(UIAlertAction(title: "нет", style: .default))
+        present(controller, animated: true)
+    }
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpView()
-        
+
     }
 
     private func setUpView() {

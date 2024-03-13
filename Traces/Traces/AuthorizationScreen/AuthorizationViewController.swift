@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class AuthorizationViewController: UIViewController {
 
@@ -96,16 +97,24 @@ class AuthorizationViewController: UIViewController {
             alertUserLoginError()
             return
         }
+        
+        FirebaseAuth.Auth.auth().signIn(withEmail: login, password: password) { [ weak self ] authResult, error in
+            guard let strongSelf = self else { return }
+            guard let _ = authResult, error == nil else {
+                strongSelf.alertUserLoginError(message: "проверьте правильность email или пароля")
+                return
+            }
+            strongSelf.dismiss(animated: false)
+        }
 
-        //firebase login
     }
 
-    private func alertUserLoginError() {
-        
+    private func alertUserLoginError(message: String = "введите всю информацию для входа") {
+
         loginTextField.resignFirstResponder()
         passwordTextField.resignFirstResponder()
 
-        let alertController = UIAlertController(title: "Ошибка!", message: "введите всю информацию для входа", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Ошибка!", message: message, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "ок", style: .cancel))
         present(alertController, animated: true)
     }

@@ -115,18 +115,24 @@ class RegistrationViewController: UIViewController, UINavigationControllerDelega
             return
         }
 
-        FirebaseAuth.Auth.auth().createUser(withEmail: login, password: password) { dataResult, error in
-            guard let result = dataResult, error == nil else { return }
-
-            let user = result.user
-            print(user)
-
+        DataBaseManager.shared.userExists(with: login) { [ weak self ] exists in
+            guard let strongSelf = self else { return }
+            guard !exists else {
+                strongSelf.alertUserLoginError(message: "пользоваетль с таким email сущевствует")
+                return
+            }
+            FirebaseAuth.Auth.auth().createUser(withEmail: login, password: password) { dataResult, error in
+                guard dataResult != nil, error == nil else { return }
+                DataBaseManager.shared.InsertUser(with: TracesUser(name: name, email: login))
+                strongSelf.navigationController?.popViewController(animated: true)
+            }
 
         }
+        
     }
 
-    private func alertUserLoginError() {
-        let alertController = UIAlertController(title: "Ошибка!", message: "введите корректную информацию", preferredStyle: .alert)
+    private func alertUserLoginError(message: String = "введите корректную информацию") {
+        let alertController = UIAlertController(title: "Ошибка!", message: message, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "ок", style: .cancel))
         present(alertController, animated: true)
     }

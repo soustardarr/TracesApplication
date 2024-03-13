@@ -7,6 +7,7 @@
 
 import UIKit
 import MapKit
+import FirebaseAuth
 
 
 class MainViewController: UIViewController {
@@ -78,16 +79,16 @@ class MainViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        let isLoggedIn = UserDefaults.standard.bool(forKey: "logged_in")
+        validateAuth()
+    }
 
-        if !isLoggedIn {
+    private func validateAuth() {
+        if FirebaseAuth.Auth.auth().currentUser == nil {
             let vc = AuthorizationViewController()
             let nav = UINavigationController(rootViewController: vc)
             nav.modalPresentationStyle = .fullScreen
             self.present(nav, animated: false)
         }
-
-
     }
 
 
