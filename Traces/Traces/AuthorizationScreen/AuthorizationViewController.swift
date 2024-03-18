@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import FirebaseAuth
 
 class AuthorizationViewController: UIViewController {
 
@@ -82,45 +81,40 @@ class AuthorizationViewController: UIViewController {
         return button
     }()
 
+    private var authorizationViewModel: AuthorizationViewModel?
+
     @objc func didTapRegister() {
         let vc = RegistrationViewController()
         navigationController?.pushViewController(vc, animated: false)
     }
 
     @objc func logInButtonTapped() {
-        guard let login = loginTextField.text,
-              let password = passwordTextField.text,
-              !login.isEmpty,
-              !password.isEmpty,
-              password.count >= 6
-        else {
-            alertUserLoginError()
-            return
-        }
-        
-        FirebaseAuth.Auth.auth().signIn(withEmail: login, password: password) { [ weak self ] authResult, error in
+        authorizationViewModel?.didLoginAccount(loginTextField.text, passwordTextField.text, completion: { [ weak self ] boolResult in
             guard let strongSelf = self else { return }
-            guard let _ = authResult, error == nil else {
-                strongSelf.alertUserLoginError(message: "проверьте правильность email или пароля")
-                return
+            if boolResult {
+                strongSelf.dismiss(animated: false)
+            } else {
+                strongSelf.alertUserLoginError()
             }
-            strongSelf.dismiss(animated: false)
-        }
-
+        })
     }
 
-    private func alertUserLoginError(message: String = "введите всю информацию для входа") {
-
+    private func alertUserLoginError() {
         loginTextField.resignFirstResponder()
         passwordTextField.resignFirstResponder()
-
-        let alertController = UIAlertController(title: "Ошибка!", message: message, preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Ошибка!", message: "проверьте правильность email или пароля", preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "ок", style: .cancel))
         present(alertController, animated: true)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setUpSettings()
+
+    }
+
+    private func setUpSettings() {
+        authorizationViewModel = AuthorizationViewModel()
         loginTextField.delegate = self
         passwordTextField.delegate = self
         setupUI()

@@ -41,13 +41,3 @@ extension DataBaseManager {
 
 }
 
-struct TracesUser {
-    let name: String
-    let email: String
-
-    var safeEmail: String {
-        let safeEmail = email.replacingOccurrences(of: ".", with: ",")
-        return safeEmail
-    }
-//    let profilePicture: String
-}

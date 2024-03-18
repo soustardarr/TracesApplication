@@ -52,6 +52,7 @@ class MainViewController: UIViewController {
     var buttonFriends: UIButton = {
         let buttonFriends = UIButton()
         buttonFriends.setImage(.friendsIcon, for: .normal)
+        buttonFriends.addTarget(nil, action: #selector(switchingToFriendsScreen), for: .touchUpInside)
         buttonFriends.translatesAutoresizingMaskIntoConstraints = false
         return buttonFriends
     }()
@@ -67,6 +68,10 @@ class MainViewController: UIViewController {
 
     @objc func switchingToProfile() {
         self.present(ProfileViewController(), animated: true)
+    }
+
+    @objc func switchingToFriendsScreen() {
+        self.present(FriendsViewController(), animated: true)
     }
 
     override func viewDidLoad() {
