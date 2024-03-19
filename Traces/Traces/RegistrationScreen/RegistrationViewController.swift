@@ -96,6 +96,7 @@ class RegistrationViewController: UIViewController, UINavigationControllerDelega
 
         registrationViewModel?.didRegisteredUser(nameTextField.text, loginTextField.text,
                                                  passwordTextField.text, secondPasswordTextField.text,
+                                                 avatarImageView.image,
                                                  completion: { [ weak self ] boolReuslt, message  in
             guard let strongSelf = self else { return }
             if boolReuslt {

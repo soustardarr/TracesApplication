@@ -10,6 +10,15 @@ import UIKit
 
 class FriendsViewModel: NSObject, UITableViewDataSource {
 
+
+    func fetchFriends() {
+
+    }
+
+    func fetchSearch() {
+        
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         users.count
     }

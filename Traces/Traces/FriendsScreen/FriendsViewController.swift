@@ -15,25 +15,13 @@ class FriendsViewController: UIViewController {
         return imageMinus
     }()
 
-    var searchTextField: UITextField = {
-        let textField = UITextField()
-        let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.gray
-        ]
-        let attributedPlaceholder = NSAttributedString(string: "поиск по никнейму...", attributes: attributes)
-        textField.attributedPlaceholder = attributedPlaceholder
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.backgroundColor = .white
-        textField.textColor = .black
-        textField.borderStyle = .roundedRect
-        textField.layer.borderWidth = 3
-        textField.layer.borderColor = UIColor.gray.cgColor
-        textField.clipsToBounds = true
-        textField.autocorrectionType = .no
-        textField.autocapitalizationType = .none
-        textField.returnKeyType = .done
-        textField.layer.cornerRadius = 10
-        return textField
+    var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "поиск по никнейму..."
+        searchBar.backgroundColor = .black
+        searchBar.searchTextField.textColor = .white
+        searchBar.tintColor = .white
+        return searchBar
     }()
 
     var inviteButton: UIButton = {
@@ -62,7 +50,19 @@ class FriendsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .black
         tableView.separatorStyle = .none
+        tableView.isHidden = true
         return tableView
+    }()
+
+    var noFriendsLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .gray
+        label.font = .systemFont(ofSize: 30)
+        label.text = "друзей нет"
+        label.textAlignment = .center
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
 
     private var friendsViewModel: FriendsViewModel?
@@ -70,10 +70,19 @@ class FriendsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSettings()
+        friendsTableView.isHidden = false
         setupUI()
     }
 
     private func setupSettings() {
+        searchBar.delegate = self
+        navigationController?.navigationBar.topItem?.titleView = searchBar
+        let rightBarButton = UIBarButtonItem(title: "отмена",
+                                             style: .done,
+                                             target: self,
+                                             action: #selector(didCancelTapped))
+        rightBarButton.tintColor = .white
+        navigationItem.rightBarButtonItem = rightBarButton
         friendsViewModel = FriendsViewModel()
         friendsTableView.delegate = self
         friendsTableView.dataSource = friendsViewModel
@@ -81,13 +90,17 @@ class FriendsViewController: UIViewController {
 
     }
 
+    @objc func didCancelTapped() {
+        dismiss(animated: true)
+    }
+
     private func setupUI() {
         view.backgroundColor = .black
         view.addSubview(imageMinus)
         view.addSubview(friendsLabel)
         view.addSubview(inviteButton)
-        view.addSubview(searchTextField)
         view.addSubview(friendsTableView)
+        view.addSubview(noFriendsLabel)
         NSLayoutConstraint.activate([
 
             imageMinus.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -101,12 +114,7 @@ class FriendsViewController: UIViewController {
             inviteButton.widthAnchor.constraint(equalToConstant: 150),
             inviteButton.heightAnchor.constraint(equalToConstant: 40),
 
-            searchTextField.topAnchor.constraint(equalTo: friendsLabel.bottomAnchor, constant: 20),
-            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5),
-            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -5),
-            searchTextField.heightAnchor.constraint(equalToConstant: 45),
-
-            friendsTableView.topAnchor.constraint(equalTo: searchTextField.bottomAnchor, constant: 10),
+            friendsTableView.topAnchor.constraint(equalTo: inviteButton.bottomAnchor, constant: 10),
             friendsTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             friendsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             friendsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -120,9 +128,22 @@ class FriendsViewController: UIViewController {
 extension FriendsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        100
+        50
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let vc = UserViewController()
+        vc.title = "друг"
+        self.present(vc, animated: true)
     }
 
 }
 
+
+extension FriendsViewController: UISearchBarDelegate {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+
+    }
+}
 

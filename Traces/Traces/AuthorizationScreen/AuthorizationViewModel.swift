@@ -25,6 +25,7 @@ class AuthorizationViewModel {
                 completion(false)
                 return
             }
+            UserDefaults.standard.set(login, forKey: "email")
             completion(true)
         }
 

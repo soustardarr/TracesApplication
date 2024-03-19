@@ -15,5 +15,7 @@ struct TracesUser {
         let safeEmail = email.replacingOccurrences(of: ".", with: ",")
         return safeEmail
     }
-//    let profilePicture: String
+    var profilePictureFileName: String {
+        return "\(safeEmail)_profile_picture.png"
+    }
 }

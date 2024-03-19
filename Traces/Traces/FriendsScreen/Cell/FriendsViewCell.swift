@@ -46,6 +46,8 @@ class FriendsViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             avatarImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30),
+            avatarImageView.widthAnchor.constraint(equalToConstant: 30),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 30),
 
             nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 30)

@@ -71,7 +71,9 @@ class MainViewController: UIViewController {
     }
 
     @objc func switchingToFriendsScreen() {
-        self.present(FriendsViewController(), animated: true)
+        let vc = FriendsViewController()
+        let navVC = UINavigationController(rootViewController: vc)
+        self.present(navVC, animated: true)
     }
 
     override func viewDidLoad() {

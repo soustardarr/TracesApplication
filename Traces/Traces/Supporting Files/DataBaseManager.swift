@@ -14,6 +14,11 @@ final class DataBaseManager {
 
     private let database = Database.database().reference()
 
+    static func safeEmail(emailAddress: String) -> String {
+        let safeEmail = emailAddress.replacingOccurrences(of: ".", with: ",")
+        return safeEmail
+    }
+
 }
 
 // MARK: - Account Management
@@ -33,10 +38,31 @@ extension DataBaseManager {
         })
     }
 
-    public func InsertUser(with user: TracesUser) {
+    public func insertUser(with user: TracesUser, completion: @escaping (Bool) -> ()) {
         database.child(user.safeEmail).setValue([
             "name": user.name,
-        ])
+        ]) { error, _ in
+            guard error == nil else {
+                completion(false)
+                return
+            }
+
+            self.database.child("users").observeSingleEvent(of: .value) { snapshot in
+                if var usersCollection = snapshot.value as? [[String: String]] {
+
+                } else {
+                    let newCollection: [[String: String]] = [
+                        [
+                            "name": user.name,
+                            "email": user.safeEmail
+                        ]
+                    ]
+                    // to do 
+                }
+            }
+
+            completion(true)
+        }
     }
 
 }
