@@ -8,6 +8,10 @@
 import Foundation
 import FirebaseDatabase
 
+enum DataBaseError: Error {
+    case failedReceivingUsers
+}
+
 final class DataBaseManager {
 
     static let shared = DataBaseManager()
@@ -38,6 +42,10 @@ extension DataBaseManager {
         })
     }
 
+
+
+
+    
     public func insertUser(with user: TracesUser, completion: @escaping (Bool) -> ()) {
         database.child(user.safeEmail).setValue([
             "name": user.name,
@@ -46,10 +54,18 @@ extension DataBaseManager {
                 completion(false)
                 return
             }
-
             self.database.child("users").observeSingleEvent(of: .value) { snapshot in
                 if var usersCollection = snapshot.value as? [[String: String]] {
-
+                    usersCollection.append([
+                        "name": user.name,
+                        "email": user.safeEmail
+                    ])
+                    self.database.child("users").setValue(usersCollection) { error, _ in
+                        guard error == nil else {
+                            completion(false)
+                            return }
+                        completion(true)
+                    }
                 } else {
                     let newCollection: [[String: String]] = [
                         [
@@ -57,13 +73,41 @@ extension DataBaseManager {
                             "email": user.safeEmail
                         ]
                     ]
-                    // to do 
+                    self.database.child("users").setValue(newCollection) { error, _ in
+                        guard error == nil else { 
+                            completion(false)
+                            return }
+                        completion(true)
+                    }
                 }
             }
-
-            completion(true)
         }
     }
+
+
+    func getAllUsers(completion: @escaping (Result<[[String: String]], Error>) -> ()) {
+        database.child("users").observeSingleEvent(of: .value) { dataSnapshot  in
+            guard let value = dataSnapshot.value as? [[String: String]] else {
+                completion(.failure(DataBaseError.failedReceivingUsers))
+                return
+            }
+            completion(.success(value))
+        }
+    }
+
+
+    func getSearchUsers(completion: @escaping (Result<[[String: String]], Error>) -> ()) {
+        database.child("users").observeSingleEvent(of: .value) { dataSnapshot  in
+            guard let value = dataSnapshot.value as? [[String: String]] else {
+                completion(.failure(DataBaseError.failedReceivingUsers))
+                return
+            }
+            completion(.success(value))
+        }
+    }
+
+
+
 
 }
 
