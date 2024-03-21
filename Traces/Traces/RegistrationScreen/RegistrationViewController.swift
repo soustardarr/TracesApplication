@@ -90,48 +90,30 @@ class RegistrationViewController: UIViewController, UINavigationControllerDelega
         return button
     }()
 
-
+    private var registrationViewModel: RegistraitionViewModel?
 
     @objc func doneSignUpButtonTapped() {
+
+        registrationViewModel?.didRegisteredUser(nameTextField.text, loginTextField.text,
+                                                 passwordTextField.text, secondPasswordTextField.text,
+                                                 avatarImageView.image,
+                                                 completion: { [ weak self ] boolReuslt, message  in
+            guard let strongSelf = self else { return }
+            if boolReuslt {
+                strongSelf.navigationController?.popViewController(animated: true)
+            } else {
+                strongSelf.alertUserLoginError(message: message)
+            }
+        })
+    }
+
+    private func alertUserLoginError(message: String? = "введите корректную информацию") {
 
         nameTextField.resignFirstResponder()
         loginTextField.resignFirstResponder()
         passwordTextField.resignFirstResponder()
         secondPasswordTextField.resignFirstResponder()
 
-        guard let name = nameTextField.text,
-              let login = loginTextField.text,
-              let password = passwordTextField.text,
-              let secondPassword = secondPasswordTextField.text,
-              !login.isEmpty,
-              !password.isEmpty,
-              !secondPassword.isEmpty,
-              !name.isEmpty,
-              password == secondPassword,
-              password.count >= 6,
-              name.count >= 3
-        else {
-            alertUserLoginError()
-            return
-        }
-
-        DataBaseManager.shared.userExists(with: login) { [ weak self ] exists in
-            guard let strongSelf = self else { return }
-            guard !exists else {
-                strongSelf.alertUserLoginError(message: "пользоваетль с таким email сущевствует")
-                return
-            }
-            FirebaseAuth.Auth.auth().createUser(withEmail: login, password: password) { dataResult, error in
-                guard dataResult != nil, error == nil else { return }
-                DataBaseManager.shared.InsertUser(with: TracesUser(name: name, email: login))
-                strongSelf.navigationController?.popViewController(animated: true)
-            }
-
-        }
-        
-    }
-
-    private func alertUserLoginError(message: String = "введите корректную информацию") {
         let alertController = UIAlertController(title: "Ошибка!", message: message, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "ок", style: .cancel))
         present(alertController, animated: true)
@@ -139,6 +121,11 @@ class RegistrationViewController: UIViewController, UINavigationControllerDelega
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupSettings()
+    }
+
+    private func setupSettings() {
+        registrationViewModel = RegistraitionViewModel()
         nameTextField.delegate = self
         loginTextField.delegate = self
         passwordTextField.delegate = self
@@ -146,7 +133,6 @@ class RegistrationViewController: UIViewController, UINavigationControllerDelega
         let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapChangeProfilePhoto))
         avatarImageView.addGestureRecognizer(gesture)
         setupUI()
-
     }
 
     @objc func didTapChangeProfilePhoto() {

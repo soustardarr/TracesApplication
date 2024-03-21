@@ -18,6 +18,8 @@ class ProfileViewController: UIViewController {
 
     var avatarImageView: UIImageView = {
         let avatarImageView = UIImageView(image: .profile)
+        avatarImageView.clipsToBounds = true
+        avatarImageView.layer.cornerRadius = 50
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         return avatarImageView
     }()
@@ -58,15 +60,6 @@ class ProfileViewController: UIViewController {
         return friendsButton
     }()
 
-//    var namberOfStories: UILabel = {
-//        var numberOfFriendsLabel = UILabel()
-//        numberOfFriendsLabel.text = "23"
-//        numberOfFriendsLabel.font = UIFont.systemFont(ofSize: 25)
-//        numberOfFriendsLabel.textColor = .lightGray
-//        numberOfFriendsLabel.translatesAutoresizingMaskIntoConstraints = false
-//        return numberOfFriendsLabel
-//    }()
-
     var settingsButton: UIButton = {
         var storiesButton = UIButton()
         storiesButton.setTitle("настройки", for: .normal)
@@ -98,6 +91,8 @@ class ProfileViewController: UIViewController {
         return invitationButton
     }()
 
+    private var viewModel: ProfileViewModel?
+
     @objc func didExitButtonTapped() {
         let controller = UIAlertController(title: "выход из аккаунта", message: "хотите выйти?", preferredStyle: .alert)
         controller.addAction(UIAlertAction(title: "да", style: .destructive, handler: { [ weak self ] _ in
@@ -116,11 +111,23 @@ class ProfileViewController: UIViewController {
         present(controller, animated: true)
     }
 
+    func setAvatar() {
+        viewModel?.setProfileData(completion: { [ weak self ] data in
+            DispatchQueue.main.async {
+                self?.avatarImageView.image = UIImage(data: data)
+            }
+        })
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupSettings()
+        setAvatar()
         setUpView()
+    }
 
+    func setupSettings() {
+        viewModel = ProfileViewModel()
     }
 
     private func setUpView() {
@@ -142,8 +149,8 @@ class ProfileViewController: UIViewController {
 
             avatarImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             avatarImageView.topAnchor.constraint(equalTo: imageMinus.bottomAnchor, constant: 20),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 150),
-            avatarImageView.heightAnchor.constraint(equalToConstant: 150),
+            avatarImageView.widthAnchor.constraint(equalToConstant: 100),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 100),
 
             nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 10),
