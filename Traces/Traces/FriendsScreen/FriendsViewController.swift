@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 class FriendsViewController: UIViewController {
+
+    var hud = JGProgressHUD(style: .dark)
 
     var imageMinus: UIImageView = {
         let imageMinus = UIImageView(image: .minus)
@@ -70,7 +73,6 @@ class FriendsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSettings()
-        friendsTableView.isHidden = false
         setupUI()
     }
 
@@ -87,7 +89,8 @@ class FriendsViewController: UIViewController {
         friendsTableView.delegate = self
         friendsTableView.dataSource = friendsViewModel
         friendsTableView.register(FriendsViewCell.self, forCellReuseIdentifier: FriendsViewCell.reuseIdentifier)
-
+        
+        searchBar.becomeFirstResponder()
     }
 
     @objc func didCancelTapped() {
@@ -113,6 +116,9 @@ class FriendsViewController: UIViewController {
             inviteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             inviteButton.widthAnchor.constraint(equalToConstant: 150),
             inviteButton.heightAnchor.constraint(equalToConstant: 40),
+
+            noFriendsLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            noFriendsLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
 
             friendsTableView.topAnchor.constraint(equalTo: inviteButton.bottomAnchor, constant: 10),
             friendsTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -142,8 +148,28 @@ extension FriendsViewController: UITableViewDelegate {
 
 
 extension FriendsViewController: UISearchBarDelegate {
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
+        searchBar.resignFirstResponder()
+        self.friendsViewModel?.results.removeAll()
+        self.hud.show(in: view, animated: true)
+        self.friendsViewModel?.searchUsers(text: text)
+        updateUI()
+    }
 
+
+    func updateUI() {
+        if friendsViewModel!.results.isEmpty {
+            self.hud.dismiss()
+            self.noFriendsLabel.isHidden = false
+            self.friendsTableView.isHidden = true
+        } else {
+            self.hud.dismiss()
+            self.noFriendsLabel.isHidden = true
+            self.friendsTableView.isHidden = false
+            self.friendsTableView.reloadData()
+
+        }
     }
 }
 
