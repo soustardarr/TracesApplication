@@ -8,10 +8,16 @@
 import Foundation
 import UIKit
 
-class FriendsViewModel: NSObject {
+class FriendsViewModel {
 
+    var didFetchResult: (([[String: String]]?) -> ())?
+
+    var results: [[String: String]]? {
+        didSet {
+            didFetchResult?(results)
+        }
+    }
     private var users = [[String: String]]()
-    var results = [[String: String]]()
     private var hasFetched = false
 
     func searchUsers(text: String) {
@@ -49,17 +55,3 @@ class FriendsViewModel: NSObject {
 }
 
 
-extension FriendsViewModel: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return results.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: FriendsViewCell.reuseIdentifier, for: indexPath) as? FriendsViewCell
-        let friend = Friend(name: results[indexPath.row]["name"] ?? "", avatar: .profile)
-        cell?.config(friend)
-        return cell ?? UITableViewCell()
-    }
-    
-
-}

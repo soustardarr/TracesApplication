@@ -19,6 +19,35 @@ class StorageManager {
 
     private let storage = Storage.storage().reference()
 
+    var avatarData: Data? {
+        didSet {
+            getAvatarData?(avatarData)
+        }
+    }
+
+    var getAvatarData: ((Data?) -> ())?
+
+    func downloadAvatarData() {
+        guard let email = UserDefaults.standard.value(forKey: "email") as? String else { return }
+        let safeEmail = DataBaseManager.safeEmail(emailAddress: email)
+        let fileName = safeEmail + "_profile_picture.png"
+
+        let path = "images/" + fileName
+
+        getDownloadUrl(for: path) { result in
+            switch result {
+            case .success(let url):
+                URLSession.shared.dataTask(with: url) { data, _, error in
+                    guard let data = data, error == nil else { return }
+                    self.avatarData = data
+                }.resume()
+            case .failure(let error):
+                print("jbfgskdbgdkfbgkdfjkbgjdfbgd \(error)")
+            }
+
+        }
+    }
+    
     func uploadAvatarImage(with data: Data, fileName: String, completion: @escaping (Result<String, Error>) -> ()) {
 
         storage.child("images/\(fileName)").putData(data, metadata: nil) { metadata, error in
@@ -36,7 +65,6 @@ class StorageManager {
                 completion(.success(urlString))
             }
         }
-
     }
 
     func getDownloadUrl(for path: String, completion: @escaping (Result<URL, Error>) -> ()){
@@ -50,6 +78,5 @@ class StorageManager {
             completion(.success(url))
         }
     }
-
 
 }

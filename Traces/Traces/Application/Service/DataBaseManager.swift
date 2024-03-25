@@ -43,9 +43,6 @@ extension DataBaseManager {
     }
 
 
-
-
-    
     public func insertUser(with user: TracesUser, completion: @escaping (Bool) -> ()) {
         database.child(user.safeEmail).setValue([
             "name": user.name,
@@ -63,7 +60,8 @@ extension DataBaseManager {
                     self.database.child("users").setValue(usersCollection) { error, _ in
                         guard error == nil else {
                             completion(false)
-                            return }
+                            return
+                        }
                         completion(true)
                     }
                 } else {
@@ -74,9 +72,10 @@ extension DataBaseManager {
                         ]
                     ]
                     self.database.child("users").setValue(newCollection) { error, _ in
-                        guard error == nil else { 
+                        guard error == nil else {
                             completion(false)
-                            return }
+                            return
+                        }
                         completion(true)
                     }
                 }
@@ -94,20 +93,5 @@ extension DataBaseManager {
             completion(.success(value))
         }
     }
-
-
-    func getSearchUsers(completion: @escaping (Result<[[String: String]], Error>) -> ()) {
-        database.child("users").observeSingleEvent(of: .value) { dataSnapshot  in
-            guard let value = dataSnapshot.value as? [[String: String]] else {
-                completion(.failure(DataBaseError.failedReceivingUsers))
-                return
-            }
-            completion(.success(value))
-        }
-    }
-
-
-
-
 }
 

@@ -19,7 +19,7 @@ class ProfileViewController: UIViewController {
     var avatarImageView: UIImageView = {
         let avatarImageView = UIImageView(image: .profile)
         avatarImageView.clipsToBounds = true
-        avatarImageView.layer.cornerRadius = 50
+        avatarImageView.layer.cornerRadius = 35
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         return avatarImageView
     }()
@@ -111,23 +111,27 @@ class ProfileViewController: UIViewController {
         present(controller, animated: true)
     }
 
-    func setAvatar() {
-        viewModel?.setProfileData(completion: { [ weak self ] data in
-            DispatchQueue.main.async {
-                self?.avatarImageView.image = UIImage(data: data)
-            }
-        })
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSettings()
-        setAvatar()
+        setupDataBindings()
         setUpView()
     }
 
     func setupSettings() {
         viewModel = ProfileViewModel()
+    }
+
+    private func setupDataBindings() {
+        StorageManager.shared.downloadAvatarData()
+        StorageManager.shared.getAvatarData = { result in
+            guard let data = result else { return }
+            DispatchQueue.main.async {
+                self.avatarImageView.image = UIImage(data: data)
+            }
+        }
+
     }
 
     private func setUpView() {
@@ -149,8 +153,8 @@ class ProfileViewController: UIViewController {
 
             avatarImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             avatarImageView.topAnchor.constraint(equalTo: imageMinus.bottomAnchor, constant: 20),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 100),
-            avatarImageView.heightAnchor.constraint(equalToConstant: 100),
+            avatarImageView.widthAnchor.constraint(equalToConstant: 70),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 70),
 
             nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 10),
