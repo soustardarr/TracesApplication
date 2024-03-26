@@ -28,6 +28,17 @@ final class DataBaseManager {
 // MARK: - Account Management
 extension DataBaseManager {
 
+    public func getProfileInfo(completionHandler: @escaping (Result<TracesUser, Never>) -> ()) {
+        guard let email = UserDefaults.standard.string(forKey: "email") else { return }
+        let safeEmail = DataBaseManager.safeEmail(emailAddress: email)
+        database.child(safeEmail).observeSingleEvent(of: .value) { snapshot in
+            if let userDict = snapshot.value as? [String: String], let userName = userDict["name"] {
+                let user = TracesUser(name: userName, email: email)
+                completionHandler(.success(user))
+            }
+        }
+    }
+
     public func userExists(with email: String, completion: @escaping ((Bool) -> (Void))) {
         
         let safeEmail = email.replacingOccurrences(of: ".", with: ",")

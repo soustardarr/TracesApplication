@@ -145,7 +145,8 @@ class MainViewController: UIViewController {
     }
 
     @objc private func didTapProfileButton() {
-        self.present(ProfileViewController(), animated: true)
+        let profileVC = ProfileViewController()
+        self.present(profileVC, animated: true)
     }
 
     @objc private func didTapFriendsButton() {

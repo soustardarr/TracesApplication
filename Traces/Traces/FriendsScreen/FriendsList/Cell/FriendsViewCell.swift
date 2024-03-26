@@ -10,7 +10,7 @@ import UIKit
 class FriendsViewCell: UITableViewCell {
 
     var avatarImageView: UIImageView = {
-        let avatarImageView = UIImageView(image: .profile)
+        let avatarImageView = UIImageView(image: .kitty)
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         return avatarImageView
     }()

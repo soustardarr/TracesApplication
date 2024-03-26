@@ -7,17 +7,14 @@
 
 import Foundation
 import UIKit
+import Combine
 
 class FriendsViewModel {
 
-    var didFetchResult: (([[String: String]]?) -> ())?
 
-    var results: [[String: String]]? {
-        didSet {
-            didFetchResult?(results)
-        }
-    }
-    private var users = [[String: String]]()
+    @Published var results: [[String: String]]?
+
+    @Published var users = [[String: String]]()
     private var hasFetched = false
 
     func searchUsers(text: String) {

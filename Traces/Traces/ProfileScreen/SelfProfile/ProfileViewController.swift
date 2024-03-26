@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import Combine
 
 class ProfileViewController: UIViewController {
 
@@ -17,7 +18,7 @@ class ProfileViewController: UIViewController {
     }()
 
     var avatarImageView: UIImageView = {
-        let avatarImageView = UIImageView(image: .profile)
+        let avatarImageView = UIImageView(image: .kitty)
         avatarImageView.clipsToBounds = true
         avatarImageView.layer.cornerRadius = 35
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -91,7 +92,9 @@ class ProfileViewController: UIViewController {
         return invitationButton
     }()
 
-    private var viewModel: ProfileViewModel?
+    private var profileViewModel: ProfileViewModel?
+    var cancellables: Set<AnyCancellable> = []
+
 
     @objc func didExitButtonTapped() {
         let controller = UIAlertController(title: "выход из аккаунта", message: "хотите выйти?", preferredStyle: .alert)
@@ -120,7 +123,7 @@ class ProfileViewController: UIViewController {
     }
 
     func setupSettings() {
-        viewModel = ProfileViewModel()
+        profileViewModel = ProfileViewModel()
     }
 
     private func setupDataBindings() {
@@ -131,6 +134,14 @@ class ProfileViewController: UIViewController {
                 self.avatarImageView.image = UIImage(data: data)
             }
         }
+
+        profileViewModel?.getUserInfo()
+
+        profileViewModel?.$user.sink(receiveValue: { [ weak self ] user in
+            DispatchQueue.main.async {
+                self?.nameLabel.text = user?.name
+            }
+        }).store(in: &cancellables)
 
     }
 

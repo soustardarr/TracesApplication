@@ -7,6 +7,7 @@
 
 import UIKit
 import JGProgressHUD
+import Combine
 
 class FriendsViewController: UIViewController {
 
@@ -69,20 +70,27 @@ class FriendsViewController: UIViewController {
     }()
 
     private var friendsViewModel: FriendsViewModel?
-
     var results: [[String: String]]!
+    var cancellable: Set<AnyCancellable> = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSettings()
-        friendsViewModel?.didFetchResult = { [ weak self ] results in
-            self?.results = results
-            self?.friendsTableView.reloadData()
-            self?.hud.dismiss()
-        }
+        setupDataBindings()
         setupUI()
     }
 
+    private func setupDataBindings() {
+        friendsViewModel?.$results
+            .sink(receiveValue: { users in
+                self.results = users
+                self.friendsTableView.reloadData()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: DispatchWorkItem(block: {
+                    self.hud.dismiss()
+                }))
+            })
+            .store(in: &cancellable)
+    }
 
     private func setupSettings() {
         searchBar.delegate = self
@@ -147,7 +155,7 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: FriendsViewCell.reuseIdentifier, for: indexPath) as? FriendsViewCell
         if self.results != nil {
-            let friend = Friend(name: self.results[indexPath.row]["name"] ?? "", avatar: .profile)
+            let friend = Friend(name: self.results[indexPath.row]["name"] ?? "", avatar: .kitty)
             cell?.config(friend)
             return cell ?? UITableViewCell()
         }
@@ -161,8 +169,7 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = UIViewController()
-        vc.title = "друг"
+        let vc = PeopleProfileController()
         present(vc, animated: true)
     }
 
