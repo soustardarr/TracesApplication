@@ -7,6 +7,7 @@
 
 import UIKit
 import JGProgressHUD
+import Combine
 
 class FriendsViewController: UIViewController {
 
@@ -69,11 +70,26 @@ class FriendsViewController: UIViewController {
     }()
 
     private var friendsViewModel: FriendsViewModel?
+    var results: [[String: String]]!
+    var cancellable: Set<AnyCancellable> = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSettings()
+        setupDataBindings()
         setupUI()
+    }
+
+    private func setupDataBindings() {
+        friendsViewModel?.$results
+            .sink(receiveValue: { users in
+                self.results = users
+                self.friendsTableView.reloadData()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: DispatchWorkItem(block: {
+                    self.hud.dismiss()
+                }))
+            })
+            .store(in: &cancellable)
     }
 
     private func setupSettings() {
@@ -87,9 +103,9 @@ class FriendsViewController: UIViewController {
         navigationItem.rightBarButtonItem = rightBarButton
         friendsViewModel = FriendsViewModel()
         friendsTableView.delegate = self
-        friendsTableView.dataSource = friendsViewModel
+        friendsTableView.dataSource = self
         friendsTableView.register(FriendsViewCell.self, forCellReuseIdentifier: FriendsViewCell.reuseIdentifier)
-        
+
         searchBar.becomeFirstResponder()
     }
 
@@ -124,14 +140,38 @@ class FriendsViewController: UIViewController {
             friendsTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             friendsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             friendsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-
         ])
-
     }
-
 }
 
-extension FriendsViewController: UITableViewDelegate {
+extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if self.results != nil {
+            return self.results.count
+        }
+        return 0
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: FriendsViewCell.reuseIdentifier, for: indexPath) as? FriendsViewCell
+        if self.results != nil {
+            let user = TracesUser(name: self.results[indexPath.row]["name"] ?? "",
+                                  email: self.results[indexPath.row]["email"] ?? "")
+            StorageManager.shared.downloadAvatarDataUser(user.profilePictureFileName) { result in
+                switch result {
+                case.success(let imageData):
+                    let user = Friend(name: self.results[indexPath.row]["name"] ?? "",
+                                      avatar: UIImage(data: imageData ?? Data()))
+                    cell?.config(user)
+                case .failure(let error):
+                    print("ошибка установки фото \(error)")
+                }
+            }
+            return cell ?? UITableViewCell()
+        }
+        return UITableViewCell()
+    }
+    
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         50
@@ -139,9 +179,13 @@ extension FriendsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = UserViewController()
-        vc.title = "друг"
-        self.present(vc, animated: true)
+        if let cell = tableView.cellForRow(at: indexPath) as? FriendsViewCell {
+            guard let avatarImage = cell.avatarImageView.image else { return }
+            let user = TracesUser(name: self.results[indexPath.row]["name"] ?? "",
+                                  email: self.results[indexPath.row]["email"] ?? "")
+            let vc = PeopleProfileController(avatarImage: avatarImage, user: user)
+            present(vc, animated: true)
+        }
     }
 
 }
@@ -151,24 +195,21 @@ extension FriendsViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text, !text.replacingOccurrences(of: " ", with: "").isEmpty else { return }
         searchBar.resignFirstResponder()
-        self.friendsViewModel?.results.removeAll()
-        self.hud.show(in: view, animated: true)
-        self.friendsViewModel?.searchUsers(text: text)
+        friendsViewModel?.results?.removeAll()
+        hud.show(in: view, animated: true)
+        friendsViewModel?.searchUsers(text: text)
+        hud.dismiss()
         updateUI()
     }
 
-
     func updateUI() {
-        if friendsViewModel!.results.isEmpty {
-            self.hud.dismiss()
-            self.noFriendsLabel.isHidden = false
-            self.friendsTableView.isHidden = true
+        if friendsViewModel!.results?.isEmpty == true {
+            noFriendsLabel.isHidden = false
+            friendsTableView.isHidden = true
         } else {
-            self.hud.dismiss()
-            self.noFriendsLabel.isHidden = true
-            self.friendsTableView.isHidden = false
-            self.friendsTableView.reloadData()
-
+            noFriendsLabel.isHidden = true
+            friendsTableView.isHidden = false
+            friendsTableView.reloadData()
         }
     }
 }

@@ -21,10 +21,11 @@ class AuthorizationViewModel {
             return
         }
         FirebaseAuth.Auth.auth().signIn(withEmail: login, password: password) { authResult, error in
-            guard let _ = authResult, error == nil else {
+            guard let authRes = authResult, error == nil else {
                 completion(false)
                 return
             }
+            print(authRes)
             UserDefaults.standard.set(login, forKey: "email")
             completion(true)
         }

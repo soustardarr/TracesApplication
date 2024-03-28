@@ -92,7 +92,7 @@ class RegistrationViewController: UIViewController, UINavigationControllerDelega
 
     private var registrationViewModel: RegistraitionViewModel?
 
-    @objc func doneSignUpButtonTapped() {
+    @objc private func doneSignUpButtonTapped() {
 
         registrationViewModel?.didRegisteredUser(nameTextField.text, loginTextField.text,
                                                  passwordTextField.text, secondPasswordTextField.text,
@@ -135,7 +135,7 @@ class RegistrationViewController: UIViewController, UINavigationControllerDelega
         setupUI()
     }
 
-    @objc func didTapChangeProfilePhoto() {
+    @objc private func didTapChangeProfilePhoto() {
         presentAlertCameraOrPhoto()
     }
 
