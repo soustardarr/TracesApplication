@@ -185,7 +185,7 @@ class MainViewController: UIViewController {
         viewModel?.getUserRegion = { [ weak self ] result in
             self?.userRegion = result
         }
-        StorageManager.shared.downloadAvatarData()
+        StorageManager.shared.downloadAvatarDataProfile()
         StorageManager.shared.getAvatarData = { result in
             guard let data = result else { return }
             DispatchQueue.main.async {

@@ -27,7 +27,23 @@ class StorageManager {
 
     var getAvatarData: ((Data?) -> ())?
 
-    func downloadAvatarData() {
+    func downloadAvatarDataUser(_ photoFileName: String, completionHandler: @escaping (Result<Data?, Error>) -> ()) {
+        let path = "images/" + photoFileName
+        getDownloadUrl(for: path) { result in
+            switch result {
+            case .success(let url):
+                URLSession.shared.dataTask(with: url) { data, _, error in
+                    guard let data = data, error == nil else { return }
+                    completionHandler(.success(data))
+                }.resume()
+            case .failure(let error):
+                completionHandler(.failure(error))
+            }
+
+        }
+    }
+
+    func downloadAvatarDataProfile() {
         guard let email = UserDefaults.standard.value(forKey: "email") as? String else { return }
         let safeEmail = DataBaseManager.safeEmail(emailAddress: email)
         let fileName = safeEmail + "_profile_picture.png"

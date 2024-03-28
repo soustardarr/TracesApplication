@@ -105,7 +105,7 @@ class FriendsViewController: UIViewController {
         friendsTableView.delegate = self
         friendsTableView.dataSource = self
         friendsTableView.register(FriendsViewCell.self, forCellReuseIdentifier: FriendsViewCell.reuseIdentifier)
-        
+
         searchBar.becomeFirstResponder()
     }
 
@@ -155,8 +155,18 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: FriendsViewCell.reuseIdentifier, for: indexPath) as? FriendsViewCell
         if self.results != nil {
-            let friend = Friend(name: self.results[indexPath.row]["name"] ?? "", avatar: .kitty)
-            cell?.config(friend)
+            let user = TracesUser(name: self.results[indexPath.row]["name"] ?? "",
+                                  email: self.results[indexPath.row]["email"] ?? "")
+            StorageManager.shared.downloadAvatarDataUser(user.profilePictureFileName) { result in
+                switch result {
+                case.success(let imageData):
+                    let user = Friend(name: self.results[indexPath.row]["name"] ?? "",
+                                      avatar: UIImage(data: imageData ?? Data()))
+                    cell?.config(user)
+                case .failure(let error):
+                    print("ошибка установки фото \(error)")
+                }
+            }
             return cell ?? UITableViewCell()
         }
         return UITableViewCell()
@@ -169,8 +179,13 @@ extension FriendsViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = PeopleProfileController()
-        present(vc, animated: true)
+        if let cell = tableView.cellForRow(at: indexPath) as? FriendsViewCell {
+            guard let avatarImage = cell.avatarImageView.image else { return }
+            let user = TracesUser(name: self.results[indexPath.row]["name"] ?? "",
+                                  email: self.results[indexPath.row]["email"] ?? "")
+            let vc = PeopleProfileController(avatarImage: avatarImage, user: user)
+            present(vc, animated: true)
+        }
     }
 
 }

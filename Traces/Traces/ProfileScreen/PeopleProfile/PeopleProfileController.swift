@@ -45,13 +45,14 @@ class PeopleProfileController: UIViewController {
         return nameLabel
     }()
 
-    private var addButton: UIButton = {
+    private var friendButton: UIButton = {
         let button = UIButton()
-        button.setTitle("добавить", for: .normal)
-        button.layer.cornerRadius = 10
+        button.setTitle("подписаться", for: .normal)
+        button.layer.cornerRadius = 7
         button.clipsToBounds = true
         button.setTitleColor(.black, for: .normal)
         button.backgroundColor = .white
+        button.addTarget(nil, action: #selector(didTappedAddButton), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -79,12 +80,35 @@ class PeopleProfileController: UIViewController {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .green
+        tableView.isHidden = true
         tableView.separatorStyle = .none
         return tableView
     }()
 
-    private func addGesture() {
+    private var label: UILabel = {
+        var label = UILabel()
+        label.text = "когда то здесь будут его друзья"
+        label.font = UIFont.systemFont(ofSize: 22)
+        label.textColor = .red
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
 
+    private var peopleProfileViewModel: PeopleProfileViewModel?
+
+    init(avatarImage: UIImage, user: TracesUser) {
+        super.init(nibName: nil, bundle: nil)
+        self.avatarImageView.image = avatarImage
+        self.nameLabel.text = user.name
+        self.friendsUserLabel.text = "друзья \(user.name):"
+        peopleProfileViewModel = PeopleProfileViewModel(currentUser: user)
+        setupStatusFriendButton()
+
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
 
@@ -96,6 +120,36 @@ class PeopleProfileController: UIViewController {
         addGesture()
     }
 
+    @objc private func didTappedAddButton() {
+        peopleProfileViewModel?.changeFriendStatus()
+    }
+
+    private func setupStatusFriendButton() {
+        let status = peopleProfileViewModel?.checkFriendStatus()
+        switch status {
+        case .selfSubscribed:
+            friendButton.setTitle("отписаться", for: .normal)
+            friendButton.backgroundColor = .systemRed
+        case .heSubscribedForSelf:
+            friendButton.setTitle("подписаться в ответ", for: .normal)
+            friendButton.backgroundColor = .systemBlue
+        case .inFriends:
+            friendButton.setTitle("удалить из друзей", for: .normal)
+            friendButton.backgroundColor = .systemGray
+        case .cleanStatus:
+            friendButton.setTitle("подписаться", for: .normal)
+            friendButton.backgroundColor = .systemGray
+        case .none:
+            friendButton.setTitle("none status", for: .normal)
+            friendButton.backgroundColor = .red
+        }
+    }
+
+    private func addGesture() {
+
+
+    }
+
     private func setupSettings() {
 
     }
@@ -105,16 +159,17 @@ class PeopleProfileController: UIViewController {
     }
 
     private func setUpView() {
-        view.backgroundColor = .systemMint
+        view.backgroundColor = .darkGray
 
         view.addSubview(imageMinus)
         view.addSubview(buttonSettings)
         view.addSubview(nameLabel)
         view.addSubview(avatarImageView)
         view.addSubview(buttonMessage)
-        view.addSubview(addButton)
+        view.addSubview(friendButton)
         view.addSubview(friendsUserLabel)
         view.addSubview(friendsTableView)
+        view.addSubview(label)
         NSLayoutConstraint.activate([
             imageMinus.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             imageMinus.topAnchor.constraint(equalTo: view.topAnchor, constant: 10),
@@ -137,18 +192,23 @@ class PeopleProfileController: UIViewController {
             buttonMessage.widthAnchor.constraint(equalToConstant: 36),
             buttonMessage.heightAnchor.constraint(equalToConstant: 36),
 
-            addButton.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 20),
-            addButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            addButton.heightAnchor.constraint(equalToConstant: 35),
-            addButton.widthAnchor.constraint(equalToConstant: 100),
+            friendButton.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 20),
+            friendButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            friendButton.heightAnchor.constraint(equalToConstant: 35),
+            friendButton.widthAnchor.constraint(equalToConstant: 120),
 
-            friendsUserLabel.topAnchor.constraint(equalTo: addButton.bottomAnchor, constant: 30),
+            friendsUserLabel.topAnchor.constraint(equalTo: friendButton.bottomAnchor, constant: 30),
             friendsUserLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
 
             friendsTableView.topAnchor.constraint(equalTo: friendsUserLabel.bottomAnchor, constant: 10),
             friendsTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             friendsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            friendsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            friendsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+
         ])
     }
 }
+

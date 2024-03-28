@@ -13,7 +13,7 @@ class ProfileViewModel {
     @Published var user: TracesUser?
 
     func getUserInfo() {
-        DataBaseManager.shared.getProfileInfo { result in
+        DataBaseManager.shared.getSelfProfileInfo { result in
             switch result {
             case .success(let user):
                 self.user = user

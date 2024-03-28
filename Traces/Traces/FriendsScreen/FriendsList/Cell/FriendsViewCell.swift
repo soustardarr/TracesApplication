@@ -10,22 +10,29 @@ import UIKit
 class FriendsViewCell: UITableViewCell {
 
     var avatarImageView: UIImageView = {
-        let avatarImageView = UIImageView(image: .kitty)
+        let avatarImageView = UIImageView()
+        let config = UIImage.SymbolConfiguration(paletteColors: [.black, .white])
+        avatarImageView.image = UIImage(systemName: "person.crop.circle.fill", withConfiguration: config)
+        avatarImageView.layer.cornerRadius = 15
+        avatarImageView.clipsToBounds = true
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         return avatarImageView
     }()
 
     var nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "привет"
-        label.textColor = .white
+        label.text = "user"
+        label.textColor = .gray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     func config(_ friend: Friend) {
-        avatarImageView.image = friend.avatar
-        nameLabel.text = friend.name
+        DispatchQueue.main.async {
+            self.avatarImageView.image = friend.avatar
+            self.nameLabel.textColor = .white
+            self.nameLabel.text = friend.name
+        }
     }
 
 
